@@ -1,12 +1,11 @@
 <?php
 
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [RegisterController::class, 'register'])->name('register');
-Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => 'posts'], function () {
