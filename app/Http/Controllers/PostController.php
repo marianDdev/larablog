@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\PostResourceCollection;
+use App\Jobs\SendNewPostNotification;
 use App\Services\PostServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -43,6 +44,8 @@ class PostController extends Controller
 
         try {
             $post = $this->postService->createPost($validated);
+            SendNewPostNotification::dispatch($post);
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 

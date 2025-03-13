@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use App\Http\Resources\AuthResource;
 use App\Http\Resources\UserResource;
-use App\Http\Resources\UserResourceCollection;
+use App\Models\Scopes\IsActive;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Role;
@@ -23,13 +22,11 @@ class UserService implements UserServiceInterface
             'accessToken' => $token,
             'token_type'  => 'Bearer',
         ];
-
-        return new AuthResource();
     }
 
     public function getUser(string $criteria, mixed $value): ?User
     {
-        return User::where($criteria, $value)->first();
+        return User::withoutGlobalScope(IsActive::class)->where($criteria, $value)->first();
     }
 
     public function getUserWithToken(array $userData): array
