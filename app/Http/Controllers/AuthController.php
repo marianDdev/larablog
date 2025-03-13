@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\AuthResource;
 use App\Services\AuthServiceInterface;
 use App\Services\UserServiceInterface;
 use Illuminate\Http\JsonResponse;
@@ -14,18 +14,18 @@ class AuthController extends Controller
     public function register(
         RegisterRequest      $request,
         UserServiceInterface $userService
-    ): UserResource
+    ): AuthResource
     {
         $validated = $request->validated();
 
-        return $userService->createUser($validated);
+        return new AuthResource($userService->createUser($validated));
     }
 
     public function login(
         LoginRequest         $request,
         AuthServiceInterface $authService,
         UserServiceInterface $userService
-    ): UserResource|JsonResponse
+    ): AuthResource|JsonResponse
     {
         $validated = $request->validated();
         if (!$authService->validateLogin($request)) {
@@ -37,6 +37,6 @@ class AuthController extends Controller
             );
         }
 
-        return $userService->getUserWithToken($validated);
+        return new AuthResource($userService->getUserWithToken($validated));
     }
 }

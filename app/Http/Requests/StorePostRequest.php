@@ -3,8 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class StorePostRequest extends FormRequest
 {
@@ -24,7 +22,6 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'integer', Rule::exists('users', 'id')],
             'is_active' => ['required', 'boolean'],
             'title' => ['required', 'string', 'min:3', 'max:255'],
             'content' => ['required', 'string', 'min:3'],
@@ -34,7 +31,7 @@ class StorePostRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'min' => 'pune ba 3 caractere',
+            'min' => 'why would you even use less than 3 characters?',
         ];
     }
 }

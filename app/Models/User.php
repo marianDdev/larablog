@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\UserServiceInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -50,13 +51,23 @@ class User extends Authenticatable
         ];
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(UserServiceInterface::ROLE_ADMIN);
+    }
+
+    public function isAuthor(): bool
+    {
+        return $this->hasRole(UserServiceInterface::ROLE_AUTHOR);
+    }
+
+    public function isReader(): bool
+    {
+        return $this->hasRole(UserServiceInterface::ROLE_READER);
+    }
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
-    }
-
-    public function comments(): HasManyThrough
-    {
-        return $this->hasManyThrough(Comment::class, Post::class);
     }
 }

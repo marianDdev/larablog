@@ -36,10 +36,21 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
-    public function createPost(StorePostRequest $request): JsonResource
+    public function createPost(StorePostRequest $request): JsonResource|JsonResponse
     {
-        $validated = $request->validated();
-        $post      = $this->postService->createPost($validated);
+        $validated            = $request->validated();
+        $validated['user_id'] = auth()->id();
+
+        try {
+            $post = $this->postService->createPost($validated);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return new JsonResponse(
+                ['error' => 'something went wrong'],
+                $e->getCode(),
+            );
+        }
 
         return new PostResource($post);
     }
@@ -47,6 +58,7 @@ class PostController extends Controller
     public function updatePost(UpdatePostRequest $request, int $id): PostResource|JsonResponse
     {
         $validated = $request->validated();
+
         try {
             $post = $this->postService->updatePost($validated, $id);
         } catch (\Exception $e) {
@@ -54,7 +66,7 @@ class PostController extends Controller
 
             return new JsonResponse(
                 ['error' => 'something went wrong'],
-                510,
+                $e->getCode(),
             );
         }
 
@@ -63,7 +75,16 @@ class PostController extends Controller
 
     public function deletePost(int $id): JsonResponse
     {
-        $this->postService->deletePost($id);
+        try {
+            $this->postService->deletePost($id);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+
+            return new JsonResponse(
+                ['error' => 'something went wrong'],
+                $e->getCode(),
+            );
+        }
 
         return new JsonResponse(null, 204);
     }
