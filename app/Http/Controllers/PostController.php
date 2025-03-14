@@ -8,8 +8,10 @@ use App\Http\Resources\PostResource;
 use App\Http\Resources\PostResourceCollection;
 use App\Jobs\SendNewPostNotification;
 use App\Services\PostServiceInterface;
+use App\Services\UserServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
@@ -37,21 +39,28 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
-    public function createPost(StorePostRequest $request): JsonResource|JsonResponse
+    public function createPost(
+        StorePostRequest     $request,
+        UserServiceInterface $userService
+    ): JsonResource|JsonResponse
     {
         $validated            = $request->validated();
         $validated['user_id'] = auth()->id();
 
         try {
             $post = $this->postService->createPost($validated);
-            SendNewPostNotification::dispatch($post);
+            $userService->getUsersByRole(UserServiceInterface::ROLE_READER)
+                        ->chunk(10)
+                        ->each(function ($chunk) use ($post) {
+                            Bus::dispatch(new SendNewPostNotification($chunk, $post));
+                        });;
 
         } catch (\Exception $e) {
             Log::error($e->getMessage());
 
             return new JsonResponse(
                 ['error' => 'something went wrong'],
-                $e->getCode(),
+                510
             );
         }
 

@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Scopes\IsActive;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Role;
 
 class UserService implements UserServiceInterface
@@ -41,8 +42,13 @@ class UserService implements UserServiceInterface
         ];
     }
 
-    public function getUsers(): LengthAwarePaginator
+    public function getUsersPaginated(): LengthAwarePaginator
     {
         return User::paginate(20);
+    }
+
+    public function getUsersByRole(string $role): Collection
+    {
+        return User::role($role)->get();
     }
 }

@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function getUsers(UserServiceInterface $userService): UserResourceCollection
     {
-        return new UserResourceCollection($userService->getUsers());
+        return new UserResourceCollection($userService->getUsersPaginated());
     }
 
     public function getUser(UserServiceInterface $userService, int $id): UserResource
